@@ -1,0 +1,16 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Основний відбиток лапи (велика подушечка) -->
+  <ellipse cx="16" cy="24" rx="6" ry="4.5" fill="#1a1a1a"/>
+  
+  <!-- Подушечки пальців (5 пальців) -->
+  <!-- Центральний палець (найбільший) -->
+  <ellipse cx="16" cy="13" rx="3" ry="4" fill="#1a1a1a"/>
+  
+  <!-- Бічні пальці -->
+  <ellipse cx="11.5" cy="14" rx="2.5" ry="3.5" fill="#1a1a1a"/>
+  <ellipse cx="20.5" cy="14" rx="2.5" ry="3.5" fill="#1a1a1a"/>
+  
+  <!-- Крайні пальці -->
+  <ellipse cx="9" cy="17" rx="2" ry="3" fill="#1a1a1a"/>
+  <ellipse cx="23" cy="17" rx="2" ry="3" fill="#1a1a1a"/>
+</svg>

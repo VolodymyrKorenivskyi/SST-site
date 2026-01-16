@@ -12,6 +12,14 @@
     "build:client": "cd client && npm run build",
     "start": "node dist/index.js",
     "db:migrate": "tsx server/database/migrate.ts",
+    "db:add-admin": "tsx server/scripts/addAdmin.ts",
+    "db:import-locations": "tsx server/scripts/importLocations.ts",
+    "db:add-terminals": "tsx server/scripts/addTerminals.ts",
+    "db:update-terminals": "tsx server/scripts/updateTerminalsFromLocations.ts",
+    "db:restore-addinfo": "tsx server/scripts/restoreAddInfo.ts",
+    "db:fix-addinfo": "tsx server/scripts/fixAddInfo.ts",
+    "db:check-data": "tsx server/scripts/checkData.ts",
+    "db:update-location-statuses": "tsx server/scripts/updateLocationStatuses.ts",
     "install:all": "npm install && cd client && npm install"
   },
   "keywords": [
@@ -22,18 +30,36 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2",
-    "better-sqlite3": "^9.2.2",
+    "bcrypt": "^5.1.1",
+    "better-sqlite3": "^9.6.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "nodemailer": "^6.9.8",
+    "qrcode": "^1.5.3",
+    "speakeasy": "^2.0.0",
+    "uuid": "^9.0.1",
+    "validator": "^13.11.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/cookie-parser": "^1.4.6",
+    "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.6",
-    "@types/better-sqlite3": "^7.6.8",
-    "@types/cors": "^2.8.17",
-    "typescript": "^5.3.3",
+    "@types/nodemailer": "^6.4.14",
+    "@types/qrcode": "^1.5.5",
+    "@types/uuid": "^9.0.7",
+    "@types/validator": "^13.11.7",
+    "@types/xlsx": "^0.0.36",
+    "concurrently": "^8.2.2",
     "tsx": "^4.7.0",
-    "concurrently": "^8.2.2"
+    "typescript": "^5.3.3"
   }
 }
