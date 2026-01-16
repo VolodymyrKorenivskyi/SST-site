@@ -6,6 +6,10 @@ dist/
 .env
 .DS_Store
 *.log
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
 .vscode/
 .idea/
 
