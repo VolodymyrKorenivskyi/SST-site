@@ -9,10 +9,14 @@ import authRoutes from './routes/auth';
 import { generalRateLimit } from './middleware/rateLimit';
 import { errorHandler } from './middleware/errorHandler';
 
-dotenv.config();
+// В dev часто буває, що в PowerShell/Windows вже задано $env:PORT=3000,
+// і тоді dotenv за замовчуванням НЕ перезаписує існуючі env змінні.
+// Це призводить до EADDRINUSE на 3000 навіть якщо в .env PORT=3033.
+dotenv.config({ override: process.env.NODE_ENV !== 'production' });
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const portFromEnv = process.env.PORT ? Number(process.env.PORT) : undefined;
+const PORT = Number.isFinite(portFromEnv) ? portFromEnv : 3033;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 // Безпека
@@ -40,7 +44,7 @@ app.use('/api', generalRateLimit);
 initDatabase();
 
 // API маршрути
-app.get('/api', (req, res) => {
+app.get('/api', (_req, res) => {
   res.json({ 
     message: 'SST Site API',
     version: '1.0.0'
@@ -73,7 +77,7 @@ app.use('/api/terminals', terminalsRoutes);
 // В продакшені обслуговуємо статичні файли фронтенду
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('*', (req, res) => {
+  app.get('*', (_req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }

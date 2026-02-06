@@ -43,10 +43,11 @@ function App() {
     return (
       <Layout>
         <Routes>
-          <Route path="/" element={<StatusPage />} />
+          <Route path="/" element={<Navigate to="/terminals" replace />} />
           <Route path="/status" element={<StatusPage />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/terminals" element={<TerminalsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/terminals" replace />} />
         </Routes>
       </Layout>
     );
@@ -60,7 +61,8 @@ function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Navigate to="/terminals" replace />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/status" element={<StatusPage />} />
@@ -75,6 +77,7 @@ function App() {
         <Route path="/terminals/search-locations" element={<SearchLocationsPage />} />
         <Route path="/terminals/management" element={<TerminalManagementPage />} />
         {/* TODO: Додати інші маршрути для Manager, Director */}
+        <Route path="*" element={<Navigate to="/terminals" replace />} />
       </Routes>
     </Layout>
   );

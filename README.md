@@ -171,5 +171,5 @@ npm run db:migrate
 
 ## Порты
 
-- **Backend API**: `http://localhost:3000`
+- **Backend API**: `http://localhost:3033`
 - **Frontend**: `http://localhost:5173`
