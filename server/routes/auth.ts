@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { CookieOptions, Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/AuthService';
 import { EmailService } from '../services/EmailService';
 import { generateVerificationCode } from '../utils/crypto';
@@ -25,6 +25,44 @@ import { errorHandler } from '../middleware/errorHandler';
 
 const router = express.Router();
 const db = getDatabase();
+
+function buildSessionCookieOptions(req: Request): CookieOptions {
+  const domain = process.env.COOKIE_DOMAIN?.trim() || undefined;
+  const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 днів
+
+  const envSameSite = process.env.COOKIE_SAMESITE?.trim().toLowerCase();
+  const envSecure = process.env.COOKIE_SECURE?.trim().toLowerCase();
+
+  let isCrossSite = false;
+  const origin = req.headers.origin;
+  if (origin) {
+    try {
+      const originHost = new URL(origin).hostname;
+      isCrossSite = originHost !== req.hostname;
+    } catch {
+      // ignore invalid Origin
+    }
+  }
+
+  const sameSite: CookieOptions['sameSite'] =
+    envSameSite === 'none' ? 'none' : envSameSite === 'strict' ? 'strict' : envSameSite === 'lax' ? 'lax' : isCrossSite ? 'none' : 'lax';
+
+  const secure =
+    envSecure === 'true'
+      ? true
+      : envSecure === 'false'
+        ? false
+        : process.env.NODE_ENV === 'production' || sameSite === 'none';
+
+  return {
+    httpOnly: true,
+    secure,
+    sameSite,
+    maxAge,
+    path: '/',
+    ...(domain ? { domain } : {}),
+  };
+}
 
 // Отримання IP та User Agent
 function getRequestInfo(req: Request) {
@@ -193,13 +231,7 @@ router.post(
       }
 
       // Встановлення cookie з session ID
-      res.cookie('sessionId', result.sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // Змінив з 'strict' на 'lax' для кращої сумісності
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 днів
-        path: '/', // Явно вказуємо шлях
-      });
+      res.cookie('sessionId', result.sessionId, buildSessionCookieOptions(req));
       
       console.log('🍪 Cookie set:', { sessionId: result.sessionId });
 
@@ -234,13 +266,7 @@ router.post(
       });
 
       // Встановлення cookie
-      res.cookie('sessionId', result.sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax', // Змінив з 'strict' на 'lax' для кращої сумісності
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        path: '/', // Явно вказуємо шлях
-      });
+      res.cookie('sessionId', result.sessionId, buildSessionCookieOptions(req));
       
       console.log('🍪 Cookie set (2FA):', { sessionId: result.sessionId });
 
@@ -279,7 +305,7 @@ router.post('/logout', requireAuth, async (req: Request, res: Response, next: Ne
     }
 
     // Видалення cookie
-    res.clearCookie('sessionId');
+    res.clearCookie('sessionId', buildSessionCookieOptions(req));
 
     res.json({
       success: true,

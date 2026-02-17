@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import { apiClient } from '../services/api';
@@ -14,10 +14,24 @@ interface Session {
 }
 
 function ProfilePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, loading } = useAuth();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
+
+  const languageCode = useMemo(() => {
+    const raw = i18n.resolvedLanguage || i18n.language || 'ru';
+    return raw.split('-')[0] || 'ru';
+  }, [i18n.language, i18n.resolvedLanguage]);
+
+  const dateLocale = useMemo(() => {
+    const localeByLanguage: Record<string, string> = {
+      ru: 'ru-RU',
+      en: 'en-US',
+      ky: 'ky-KG',
+    };
+    return localeByLanguage[languageCode];
+  }, [languageCode]);
 
   useEffect(() => {
     loadSessions();
@@ -36,7 +50,7 @@ function ProfilePage() {
   };
 
   const deleteSession = async (sessionId: string) => {
-    if (!confirm('Ви впевнені, що хочете видалити цю сесію?')) {
+    if (!window.confirm(t('profile.sessions.deleteConfirm'))) {
       return;
     }
 
@@ -44,13 +58,13 @@ function ProfilePage() {
       await apiClient.delete(`/users/me/sessions/${sessionId}`);
       await loadSessions(); // Перезавантажити список
     } catch (error: any) {
-      alert(error.response?.data?.error?.message || 'Помилка видалення сесії');
+      window.alert(error.response?.data?.error?.message || t('profile.sessions.deleteError'));
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('uk-UA', {
+    return date.toLocaleString(dateLocale, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -60,7 +74,7 @@ function ProfilePage() {
   };
 
   const getDeviceInfo = (userAgent: string) => {
-    if (!userAgent) return 'Невідомо';
+    if (!userAgent) return t('profile.device.unknown');
     
     if (userAgent.includes('Windows')) return 'Windows';
     if (userAgent.includes('Mac')) return 'macOS';
@@ -68,7 +82,7 @@ function ProfilePage() {
     if (userAgent.includes('Android')) return 'Android';
     if (userAgent.includes('iOS') || userAgent.includes('iPhone')) return 'iOS';
     
-    return 'Інший пристрій';
+    return t('profile.device.other');
   };
 
   if (loading) {
@@ -93,28 +107,28 @@ function ProfilePage() {
         <h3 style={{ marginTop: 0 }}>{t('profile.personalInfo')}</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
-            <strong>Email:</strong> {user.email}
+            <strong>{t('profile.fields.email')}:</strong> {user.email}
           </div>
           <div>
-            <strong>Ім'я:</strong> {user.firstName} {user.middleName || ''} {user.lastName}
+            <strong>{t('profile.fields.name')}:</strong> {user.firstName} {user.middleName || ''} {user.lastName}
           </div>
           {user.phone && (
             <div>
-              <strong>Телефон:</strong> {user.phone}
+              <strong>{t('profile.fields.phone')}:</strong> {user.phone}
             </div>
           )}
           {user.companyName && (
             <div>
-              <strong>Компанія:</strong> {user.companyName}
+              <strong>{t('profile.fields.company')}:</strong> {user.companyName}
             </div>
           )}
           {user.jobTitle && (
             <div>
-              <strong>Посада:</strong> {user.jobTitle}
+              <strong>{t('profile.fields.position')}:</strong> {user.jobTitle}
             </div>
           )}
           <div>
-            <strong>Ролі:</strong> {user.roles.join(', ')}
+            <strong>{t('profile.fields.roles')}:</strong> {user.roles.join(', ')}
           </div>
         </div>
       </div>
@@ -134,16 +148,16 @@ function ProfilePage() {
         ) : (
           <div>
             <p style={{ color: '#888', marginBottom: '1rem' }}>
-              Всього активних сесій: {sessions.length}
+              {t('profile.sessions.total', { count: sessions.length })}
             </p>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #555', textAlign: 'left' }}>
-                  <th style={{ padding: '0.75rem' }}>Пристрій</th>
-                  <th style={{ padding: '0.75rem' }}>IP адреса</th>
-                  <th style={{ padding: '0.75rem' }}>Остання активність</th>
-                  <th style={{ padding: '0.75rem' }}>Статус</th>
-                  <th style={{ padding: '0.75rem' }}>Дії</th>
+                  <th style={{ padding: '0.75rem' }}>{t('profile.sessions.table.device')}</th>
+                  <th style={{ padding: '0.75rem' }}>{t('profile.sessions.table.ipAddress')}</th>
+                  <th style={{ padding: '0.75rem' }}>{t('profile.sessions.table.lastActivity')}</th>
+                  <th style={{ padding: '0.75rem' }}>{t('profile.sessions.table.status')}</th>
+                  <th style={{ padding: '0.75rem' }}>{t('profile.sessions.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -163,7 +177,7 @@ function ProfilePage() {
                           color: '#B19CD9',
                           fontWeight: 'bold'
                         }}>
-                          (Поточна)
+                          {t('profile.sessions.current')}
                         </span>
                       )}
                     </td>
@@ -173,9 +187,9 @@ function ProfilePage() {
                     </td>
                     <td style={{ padding: '0.75rem' }}>
                       {session.isCurrent ? (
-                        <span style={{ color: '#B19CD9' }}>Активна</span>
+                        <span style={{ color: '#B19CD9' }}>{t('profile.sessions.status.current')}</span>
                       ) : (
-                        <span style={{ color: '#888' }}>Інша сесія</span>
+                        <span style={{ color: '#888' }}>{t('profile.sessions.status.other')}</span>
                       )}
                     </td>
                     <td style={{ padding: '0.75rem' }}>
@@ -192,7 +206,7 @@ function ProfilePage() {
                             fontSize: '0.9rem',
                           }}
                         >
-                          Видалити
+                          {t('profile.sessions.delete')}
                         </button>
                       )}
                     </td>

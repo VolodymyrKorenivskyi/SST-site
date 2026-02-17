@@ -326,6 +326,36 @@
     "activeSessions": "Active Sessions",
     "loadingSessions": "Loading sessions...",
     "noSessions": "No active sessions",
-    "userNotFound": "User not found"
+    "userNotFound": "User not found",
+    "fields": {
+      "email": "Email",
+      "name": "Name",
+      "phone": "Phone",
+      "company": "Company",
+      "position": "Position",
+      "roles": "Roles"
+    },
+    "device": {
+      "unknown": "Unknown",
+      "other": "Other device"
+    },
+    "sessions": {
+      "total": "Total active sessions: {{count}}",
+      "table": {
+        "device": "Device",
+        "ipAddress": "IP address",
+        "lastActivity": "Last activity",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "current": "(Current)",
+      "status": {
+        "current": "Active",
+        "other": "Other session"
+      },
+      "delete": "Delete",
+      "deleteConfirm": "Are you sure you want to delete this session?",
+      "deleteError": "Error deleting session"
+    }
   }
 }

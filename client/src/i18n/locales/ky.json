@@ -327,6 +327,36 @@
     "activeSessions": "Активдүү сессиялар",
     "loadingSessions": "Сессиялар жүктөлүүдө...",
     "noSessions": "Активдүү сессиялар жок",
-    "userNotFound": "Колдонуучу табылган жок"
+    "userNotFound": "Колдонуучу табылган жок",
+    "fields": {
+      "email": "Email",
+      "name": "Аты-жөнү",
+      "phone": "Телефон",
+      "company": "Компания",
+      "position": "Кызматы",
+      "roles": "Ролдор"
+    },
+    "device": {
+      "unknown": "Белгисиз",
+      "other": "Башка түзмөк"
+    },
+    "sessions": {
+      "total": "Активдүү сессиялардын саны: {{count}}",
+      "table": {
+        "device": "Түзмөк",
+        "ipAddress": "IP дарек",
+        "lastActivity": "Акыркы активдүүлүк",
+        "status": "Статус",
+        "actions": "Аракеттер"
+      },
+      "current": "(Учурдагы)",
+      "status": {
+        "current": "Активдүү",
+        "other": "Башка сессия"
+      },
+      "delete": "Өчүрүү",
+      "deleteConfirm": "Бул сессияны өчүргүңүз келеби?",
+      "deleteError": "Сессияны өчүрүүдө ката"
+    }
   }
 }

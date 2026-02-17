@@ -12,7 +12,13 @@ import { errorHandler } from './middleware/errorHandler';
 // В dev часто буває, що в PowerShell/Windows вже задано $env:PORT=3000,
 // і тоді dotenv за замовчуванням НЕ перезаписує існуючі env змінні.
 // Це призводить до EADDRINUSE на 3000 навіть якщо в .env PORT=3033.
-dotenv.config({ override: process.env.NODE_ENV !== 'production' });
+// Важливо: в production процес може стартувати з іншого cwd, тоді ".env" не буде знайдено.
+// Тому читаємо ".env" завжди від кореня проекту (працює і для server/, і для dist/).
+const projectRoot = path.resolve(__dirname, '..');
+dotenv.config({
+  path: path.join(projectRoot, '.env'),
+  override: process.env.NODE_ENV !== 'production',
+});
 
 const app = express();
 const portFromEnv = process.env.PORT ? Number(process.env.PORT) : undefined;

@@ -6,8 +6,17 @@ let db: Database.Database | null = null;
 
 export function getDatabase(): Database.Database {
   if (!db) {
-    // Використовуємо process.cwd() для надійного визначення шляху
-    const dbPath = process.env.DB_PATH || path.join(process.cwd(), 'data', 'sst-site.db');
+    // Визначаємо корінь проекту стабільно (працює і в dev, і в dist/)
+    // server/database -> ../../ (root); dist/database -> ../../ (root)
+    const projectRoot = path.resolve(__dirname, '..', '..');
+
+    // DB_PATH може бути абсолютним або відносним
+    const envDbPathRaw = process.env.DB_PATH?.trim();
+    const dbPath = envDbPathRaw
+      ? (path.isAbsolute(envDbPathRaw) ? envDbPathRaw : path.resolve(projectRoot, envDbPathRaw))
+      : path.resolve(projectRoot, 'data', 'sst-site.db');
+
+    const dbFileExisted = fs.existsSync(dbPath);
     
     // Створюємо директорію для БД, якщо її немає
     const dbDir = path.dirname(dbPath);
@@ -19,6 +28,13 @@ export function getDatabase(): Database.Database {
     db = new Database(dbPath);
     db.pragma('foreign_keys = ON');
     console.log('✅ Підключено до бази даних:', dbPath);
+
+    if (!dbFileExisted) {
+      console.warn(
+        '⚠️  Файл БД не знайдено, створено нову (порожню) базу. ' +
+          'У production це зазвичай означає, що не підключено/не скопійовано data/sst-site.db або невірно налаштовано DB_PATH.'
+      );
+    }
   }
   return db;
 }

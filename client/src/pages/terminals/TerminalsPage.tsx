@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiClient } from '../../services/api';
+import axios from 'axios';
 
 interface LocationType {
   id: number;
@@ -26,6 +27,7 @@ function TerminalsPage() {
   const [terminals, setTerminals] = useState<Terminal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     loadTerminals();
@@ -34,12 +36,18 @@ function TerminalsPage() {
   const loadTerminals = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const response = await apiClient.get('/terminals');
       if (response.data.success) {
         setTerminals(response.data.data.terminals);
       }
     } catch (error) {
       console.error('Error loading terminals:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        setLoadError(t('auth.errors.UNAUTHORIZED', 'Требуется аутентификация'));
+      } else {
+        setLoadError(t('common.errorLoading', 'Ошибка загрузки данных'));
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +108,8 @@ function TerminalsPage() {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '2rem' }}>{t('auth.loading')}</div>
+      ) : loadError ? (
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#ff6b6b' }}>{loadError}</div>
       ) : (
         <div style={{ backgroundColor: '#2a2a2a', borderRadius: '8px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>

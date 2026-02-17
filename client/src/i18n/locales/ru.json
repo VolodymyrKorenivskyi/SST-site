@@ -330,6 +330,36 @@
     "activeSessions": "Активные сессии",
     "loadingSessions": "Загрузка сессий...",
     "noSessions": "Нет активных сессий",
-    "userNotFound": "Пользователь не найден"
+    "userNotFound": "Пользователь не найден",
+    "fields": {
+      "email": "Email",
+      "name": "Имя",
+      "phone": "Телефон",
+      "company": "Компания",
+      "position": "Должность",
+      "roles": "Роли"
+    },
+    "device": {
+      "unknown": "Неизвестно",
+      "other": "Другое устройство"
+    },
+    "sessions": {
+      "total": "Всего активных сессий: {{count}}",
+      "table": {
+        "device": "Устройство",
+        "ipAddress": "IP адрес",
+        "lastActivity": "Последняя активность",
+        "status": "Статус",
+        "actions": "Действия"
+      },
+      "current": "(Текущая)",
+      "status": {
+        "current": "Активна",
+        "other": "Другая сессия"
+      },
+      "delete": "Удалить",
+      "deleteConfirm": "Вы уверены, что хотите удалить эту сессию?",
+      "deleteError": "Ошибка удаления сессии"
+    }
   }
 }
