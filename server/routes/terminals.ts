@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { requireAuth } from '../middleware/auth';
+import { optionalAuth, requireAuth } from '../middleware/auth';
 import { getDatabase } from '../database/connection';
 import { EmailService } from '../services/EmailService';
 
@@ -63,7 +63,8 @@ router.get('/location-statuses', requireAuth, async (_req: Request, res: Respons
  * GET /api/terminals
  * Отримання списку терміналів
  */
-router.get('/', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
+// Публічний список терміналів: доступно без авторизації (read-only)
+router.get('/', optionalAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const terminals = db.prepare(`
       SELECT 
