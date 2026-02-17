@@ -84,7 +84,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 /**
  * Опціональна аутентифікація (якщо є токен - перевіряємо, якщо ні - пропускаємо)
  */
-export function optionalAuth(req: Request, res: Response, next: NextFunction): void {
+export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
   try {
     const sessionId =
       req.cookies?.sessionId ||

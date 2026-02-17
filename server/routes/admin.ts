@@ -479,10 +479,7 @@ router.post('/users/:id/block', async (req: Request, res: Response, next: NextFu
     });
 
     // Відправка email
-    const user = db.prepare('SELECT email, first_name FROM users WHERE id = ?').get(userId) as {
-      email: string;
-      first_name: string;
-    };
+    db.prepare('SELECT email, first_name FROM users WHERE id = ?').get(userId);
     // TODO: Відправити email про блокування
 
     res.json({
@@ -517,10 +514,7 @@ router.post('/users/:id/unblock', async (req: Request, res: Response, next: Next
     });
 
     // Відправка email
-    const user = db.prepare('SELECT email, first_name FROM users WHERE id = ?').get(userId) as {
-      email: string;
-      first_name: string;
-    };
+    db.prepare('SELECT email, first_name FROM users WHERE id = ?').get(userId);
     // TODO: Відправити email про розблокування
 
     res.json({
@@ -580,7 +574,7 @@ router.delete('/users/:id', async (req: Request, res: Response, next: NextFuncti
  */
 router.delete('/audit-logs', requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const adminId = req.userId!;
+    req.userId!;
 
     // Видалення всіх логів
     AuditService.deleteAllLogs();
@@ -672,7 +666,7 @@ router.get('/audit-logs', async (req: Request, res: Response, next: NextFunction
  * GET /api/admin/settings
  * Отримання всіх настройок
  */
-router.get('/settings', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/settings', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const settings = db.prepare('SELECT * FROM app_settings ORDER BY key').all() as any[];
 
@@ -716,7 +710,6 @@ router.patch('/settings/:key', async (req: Request, res: Response, next: NextFun
       userId: adminId,
       action: 'settings_changed',
       entityType: 'setting',
-      entityId: null,
       details: { key, oldValue: oldSetting?.value, newValue: value },
     });
 

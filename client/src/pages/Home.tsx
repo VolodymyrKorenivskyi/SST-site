@@ -109,8 +109,53 @@ function Home() {
       const errorCode = error.response?.data?.error?.code;
       const errorMessage = errorCode ? t(`auth.errors.${errorCode}`, error.response?.data?.error?.message) : (error.response?.data?.error?.message || t('auth.errors.INTERNAL_ERROR'));
       setErrors([errorMessage]);
+
+      if (errorCode === 'EMAIL_NOT_VERIFIED') {
+        setShowResendVerification(true);
+      } else {
+        setShowResendVerification(false);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      setErrors([t('auth.validation.emailRequired', 'Email is required')]);
+      return;
+    }
+
+    setResendLoading(true);
+    setResendSuccess(false);
+    setErrors([]);
+
+    try {
+      const response = await apiClient.post('/auth/resend-verification', {
+        email: formData.email,
+      });
+
+      if (response.data.success) {
+        setResendSuccess(true);
+        setShowResendVerification(false);
+
+        // В dev режиме сервер может вернуть код
+        if (response.data.developmentCode) {
+          setErrors([`🔐 КОД ПОДТВЕРЖДЕНИЯ (для разработки): ${response.data.developmentCode}`]);
+        }
+
+        setTimeout(() => {
+          setResendSuccess(false);
+        }, 10000);
+      }
+    } catch (error: any) {
+      const errorCode = error.response?.data?.error?.code;
+      const errorMessage = errorCode
+        ? t(`auth.errors.${errorCode}`, error.response?.data?.error?.message)
+        : (error.response?.data?.error?.message || t('auth.errors.INTERNAL_ERROR'));
+      setErrors([errorMessage]);
+    } finally {
+      setResendLoading(false);
     }
   };
 

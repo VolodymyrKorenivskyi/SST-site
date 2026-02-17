@@ -276,7 +276,7 @@ router.post(
  * POST /api/users/me/avatar
  * Завантаження аватара
  */
-router.post('/me/avatar', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/me/avatar', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     // TODO: Реалізувати завантаження файлів (multer або подібне)
     // Зараз повертаємо заглушку
@@ -296,7 +296,7 @@ router.post('/me/avatar', requireAuth, async (req: Request, res: Response, next:
  * GET /api/users/roles
  * Отримання списку всіх доступних ролей (для подачі заявки)
  */
-router.get('/roles', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/roles', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const roles = db.prepare('SELECT * FROM roles WHERE id != 1 ORDER BY id').all() as any[]; // Виключаємо Guest
 

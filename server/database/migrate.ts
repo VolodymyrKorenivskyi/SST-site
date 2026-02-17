@@ -696,14 +696,6 @@ export function runMigrations(): void {
       // Створюємо тимчасову колонку status_id
       db.exec(`ALTER TABLE search_locations ADD COLUMN status_id INTEGER`);
       
-      // Маппинг старих значень status (TEXT) на нові id
-      const statusMapping: { [key: string]: number } = {
-        'active': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('active') as { id: number } | undefined || defaultStatusId,
-        'inactive': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('suspended') as { id: number } | undefined || defaultStatusId,
-        'maintenance': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('suspended') as { id: number } | undefined || defaultStatusId,
-        'planned': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('pending_connection') as { id: number } | undefined || defaultStatusId,
-      };
-      
       // Отримуємо id статусу 'connected' для локацій, що співпадають з терміналами
       const connectedStatus = db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('connected') as { id: number } | undefined;
       const connectedStatusId = connectedStatus?.id || defaultStatusId;
@@ -798,14 +790,6 @@ export function runMigrations(): void {
       
       // Створюємо тимчасову колонку status_id
       db.exec(`ALTER TABLE terminals ADD COLUMN status_id INTEGER`);
-      
-      // Маппинг старих значень status (TEXT) на нові id
-      const statusMapping: { [key: string]: number } = {
-        'active': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('active') as { id: number } | undefined || defaultStatusId,
-        'inactive': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('suspended') as { id: number } | undefined || defaultStatusId,
-        'maintenance': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('suspended') as { id: number } | undefined || defaultStatusId,
-        'planned': db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('pending_connection') as { id: number } | undefined || defaultStatusId,
-      };
       
       // Отримуємо id статусу 'connected' для терміналів
       const connectedStatus = db.prepare('SELECT id FROM location_statuses WHERE code = ?').get('connected') as { id: number } | undefined;

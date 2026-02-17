@@ -1,6 +1,6 @@
 import { getDatabase } from '../database/connection';
 import { hashPassword, comparePassword, generateUUID, generateVerificationCode, normalizeEmail } from '../utils/crypto';
-import { User, UserRole, Role, Session, VerificationCode } from '../types/models';
+import { User, Session, VerificationCode } from '../types/models';
 import { EmailService } from './EmailService';
 import { AuditService } from './AuditService';
 import { TwoFactorService } from './TwoFactorService';
@@ -191,7 +191,6 @@ export class AuthService {
     const passwordHash = dbUser.password_hash;
     const isEmailVerified = !!dbUser.is_email_verified;
     const is2FAEnabled = !!dbUser.is_2fa_enabled;
-    const totpSecret = dbUser.totp_secret;
 
     // Перевірка статусу
     if (userStatus === 'blocked') {

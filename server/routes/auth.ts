@@ -17,7 +17,6 @@ import {
   loginSchema,
   verifyEmailSchema,
   resetPasswordSchema,
-  changePasswordSchema,
   verify2FASchema,
 } from '../utils/validation';
 import { errorHandler } from '../middleware/errorHandler';

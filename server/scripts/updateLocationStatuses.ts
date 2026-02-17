@@ -47,10 +47,12 @@ function updateLocationStatuses() {
     console.log(`📋 Найдено ${terminals.length} терминалов с адресами`);
     console.log(`📋 Уникальных адресов терминалов: ${terminalAddresses.size}`);
 
+    type LocationRow = { id: number; address?: string | null };
+
     // Получаем все локации
-    const locations = hasAddress
-      ? db.prepare('SELECT id, address FROM search_locations').all() as { id: number; address: string | null }[]
-      : db.prepare('SELECT id FROM search_locations').all() as { id: number }[];
+    const locations: LocationRow[] = hasAddress
+      ? (db.prepare('SELECT id, address FROM search_locations').all() as { id: number; address: string | null }[])
+      : (db.prepare('SELECT id FROM search_locations').all() as { id: number }[]);
     console.log(`📋 Найдено ${locations.length} локаций`);
 
     let updatedToSearching = 0;
@@ -70,17 +72,15 @@ function updateLocationStatuses() {
     const updateStatus = db.prepare('UPDATE search_locations SET status = ? WHERE id = ?');
     
     for (const location of locations) {
-      const locationAddress = hasAddress && 'address' in location 
-        ? (location.address || '').trim().toLowerCase() 
-        : null;
+      const locationAddress = hasAddress ? (location.address ?? '').trim().toLowerCase() : null;
       
       if (locationAddress && terminalAddresses.has(locationAddress)) {
         // Адрес совпадает с терминалом - ставим "Подключено"
         const statusValue = isTextStatus ? 'connected' : connectedStatus.id;
         updateStatus.run(statusValue, location.id);
         updatedToConnected++;
-        if (hasAddress && 'address' in location) {
-          console.log(`✅ Локация ${location.id} (${location.address}) -> "Подключено"`);
+        if (hasAddress) {
+          console.log(`✅ Локация ${location.id} (${location.address ?? ''}) -> "Подключено"`);
         } else {
           console.log(`✅ Локация ${location.id} -> "Подключено"`);
         }

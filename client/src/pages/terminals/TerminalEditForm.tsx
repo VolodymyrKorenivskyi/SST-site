@@ -102,7 +102,7 @@ function TerminalEditForm({ terminalId, onSave }: TerminalEditFormProps) {
     }
   };
 
-  const handleChange = (field: string, value: string | boolean | number | string[]) => {
+  const handleChange = (field: string, value: string | boolean | number | string[] | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

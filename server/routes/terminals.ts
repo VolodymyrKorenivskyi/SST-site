@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { getDatabase } from '../database/connection';
-import { errorHandler } from '../middleware/errorHandler';
 import { EmailService } from '../services/EmailService';
 
 const router = express.Router();
@@ -11,7 +10,7 @@ const db = getDatabase();
  * GET /api/terminals/location-types
  * Отримання списку типів серед розміщення
  */
-router.get('/location-types', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/location-types', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const locationTypes = db.prepare('SELECT * FROM location_types ORDER BY id').all() as any[];
 
@@ -36,7 +35,7 @@ router.get('/location-types', requireAuth, async (req: Request, res: Response, n
  * GET /api/terminals/location-statuses
  * Отримання списку статусов локаций
  */
-router.get('/location-statuses', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/location-statuses', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const locationStatuses = db.prepare('SELECT * FROM location_statuses ORDER BY id').all() as any[];
 
@@ -64,7 +63,7 @@ router.get('/location-statuses', requireAuth, async (req: Request, res: Response
  * GET /api/terminals
  * Отримання списку терміналів
  */
-router.get('/', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const terminals = db.prepare(`
       SELECT 
@@ -146,10 +145,11 @@ router.post('/collection-request', requireAuth, async (req: Request, res: Respon
   try {
     const { terminalId } = req.body as { terminalId?: number };
     if (!terminalId || typeof terminalId !== 'number') {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { message: 'terminalId is required' },
       });
+      return;
     }
 
     const formatDateTime = (date: Date) => {
@@ -196,10 +196,11 @@ router.post('/collection-request', requireAuth, async (req: Request, res: Respon
       | undefined;
 
     if (!terminal) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: { message: 'Terminal not found' },
       });
+      return;
     }
 
     // Берем email получателя из настроек (если нет — fallback)
@@ -269,11 +270,12 @@ router.post('/collection-request', requireAuth, async (req: Request, res: Respon
 
       const isDevMode = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
       if (isAuthError || isDevMode) {
-        return res.json({
+        res.json({
           success: true,
           message: 'Email не отправлен (SMTP не настроен)',
           fallbackUsed: true,
         });
+        return;
       }
 
       throw error;
@@ -287,7 +289,7 @@ router.post('/collection-request', requireAuth, async (req: Request, res: Respon
  * GET /api/terminals/search-locations
  * Отримання списку локацій
  */
-router.get('/search-locations', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/search-locations', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const locations = db.prepare(`
       SELECT 
@@ -390,10 +392,11 @@ router.get('/search-locations/:id', requireAuth, async (req: Request, res: Respo
     `).get(id) as any;
 
     if (!location) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: { code: 'LOCATION_NOT_FOUND', message: 'Локация не найдена' },
       });
+      return;
     }
 
     res.json({
@@ -475,10 +478,11 @@ router.post('/search-locations', requireAuth, async (req: Request, res: Response
     } = req.body;
 
     if (!objectName) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'Название объекта обязательно' },
       });
+      return;
     }
 
     const result = db.prepare(`
@@ -632,10 +636,11 @@ router.patch('/search-locations/:id', requireAuth, async (req: Request, res: Res
     }
 
     if (updateFields.length === 0) {
-      return res.json({
+      res.json({
         success: true,
         message: 'Нет изменений',
       });
+      return;
     }
 
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
@@ -661,10 +666,11 @@ router.get('/:id', requireAuth, async (req: Request, res: Response, next: NextFu
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { code: 'INVALID_ID', message: 'Неверный ID терминала' },
       });
+      return;
     }
 
     const terminal = db.prepare(`
@@ -688,10 +694,11 @@ router.get('/:id', requireAuth, async (req: Request, res: Response, next: NextFu
     `).get(id) as any;
 
     if (!terminal) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         error: { code: 'TERMINAL_NOT_FOUND', message: 'Терминал не найден' },
       });
+      return;
     }
 
     res.json({
@@ -753,10 +760,11 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response, next: Next
   try {
     const id = parseInt(req.params.id);
     if (isNaN(id)) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: { code: 'INVALID_ID', message: 'Неверный ID терминала' },
       });
+      return;
     }
 
     const {
@@ -790,10 +798,11 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response, next: Next
       if (idTerminal) {
         const existingTerminal = db.prepare('SELECT id FROM terminals WHERE id_terminal = ? AND id != ?').get(idTerminal, id) as { id: number } | undefined;
         if (existingTerminal) {
-          return res.status(400).json({
+          res.status(400).json({
             success: false,
             error: { code: 'DUPLICATE_TERMINAL_ID', message: 'Терминал с таким ID уже существует' },
           });
+          return;
         }
       }
       updateFields.push('id_terminal = ?');
@@ -877,11 +886,12 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response, next: Next
     }
 
     if (updateFields.length === 0) {
-      return res.json({
+      res.json({
         success: true,
         message: 'Нет изменений',
         data: {},
       });
+      return;
     }
 
     updateFields.push('updated_at = CURRENT_TIMESTAMP');
@@ -892,10 +902,11 @@ router.patch('/:id', requireAuth, async (req: Request, res: Response, next: Next
       db.prepare(updateQuery).run(...updateValues);
     } catch (dbError: any) {
       if (dbError.message && dbError.message.includes('UNIQUE constraint failed')) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           error: { code: 'DUPLICATE_TERMINAL_ID', message: 'Терминал с таким ID уже существует' },
         });
+        return;
       }
       throw dbError;
     }

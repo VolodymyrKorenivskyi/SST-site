@@ -44,8 +44,18 @@ function addTerminals() {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
+    type TerminalInput = {
+      idTerminal: string;
+      objectName: string;
+      locationType: string;
+      address: string;
+      latitude?: string | null;
+      longitude?: string | null;
+      mapUrl?: string | null;
+    };
+
     // Терминалы для добавления
-    const terminals = [
+    const terminals: TerminalInput[] = [
       {
         idTerminal: 'T001',
         objectName: 'ТЦ Бишкек Парк',
